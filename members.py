@@ -71,7 +71,7 @@ for line in response.readlines():
         hiddenContent = str(line)
         break
 
-# extract from content
+# extract from comment
 content = midRegex('<!--(.*?)-->', hiddenContent)
 
 # parse DOM
