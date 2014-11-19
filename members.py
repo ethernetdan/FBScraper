@@ -14,7 +14,6 @@ count = 0
 
 def handleAdd(obj):
     user = dict()
-    bio = obj.div
     user['name'] = obj.a.text
     for d in obj.findAll("div"):
         if "fsl" in d["class"]:
