@@ -1,17 +1,15 @@
 import urllib.request
 from bs4 import BeautifulSoup
 import re
-from pymongo import MongoClient
+import json
 
 # FB Setup
 tag = 'fbProfileBrowserListContainer'
 groupId = "{insert group}"
 cookieText = "{insert cookie}"
 
-client = MongoClient()
-coll = client[groupId].members
 count = 0
-
+data = dict()
 def handleAdd(obj):
     user = dict()
     user['name'] = obj.a.text
@@ -27,7 +25,7 @@ def handleAdd(obj):
             user['joined'] = float(d.abbr['data-utime'])
             if d.text.startswith("Added by"):
                 user['addedby'] = d.abbr.previousSibling[9:-1]
-    coll.insert(user)
+    data[user['userid']] = user
     print (user['name'])
 
 def retrieve(url):
@@ -77,3 +75,8 @@ content = midRegex('<!--(.*?)-->', hiddenContent)
 soup = BeautifulSoup(content)
 encapTag = soup.findAll("div", {"class": tag})[0]
 processContainer(encapTag)
+
+with open("hh.json", 'w') as outfile:
+    json.dump(data, outfile)
+
+
