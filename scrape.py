@@ -1,4 +1,5 @@
 import re
+import urllib.request
 
 def midExtract(begin, end, search):
     regex = str(begin) + '(.*?)' + str(end)
@@ -12,3 +13,8 @@ def jsonpToHTML(jsonpData):
     jsonp = jsonp.replace('\\\\/', "/")
     content = midExtract('":"','"}],', jsonp)
     return content
+
+def retrieve(url, cookie):
+    request = urllib.request.Request(url)
+    request.add_header("Cookie", cookie)
+    return urllib.request.urlopen(request)

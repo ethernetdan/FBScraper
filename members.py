@@ -1,4 +1,3 @@
-import urllib.request
 from bs4 import BeautifulSoup
 import scrape
 
@@ -23,9 +22,7 @@ class Member:
         return user
 
     def retrieve(self, url):
-        request = urllib.request.Request(url)
-        request.add_header("Cookie", self.cookieText)
-        return urllib.request.urlopen(request)
+        return scrape.retrieve(url, self.cookieText)
 
     def nextPage(self, url):
         url = "https://www.facebook.com" + url + "&__a=1"
