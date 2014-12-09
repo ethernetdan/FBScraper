@@ -3,13 +3,14 @@ from bs4 import BeautifulSoup
 import re
 
 class Member:
-    def handleAdd(self, obj):
+    @staticmethod
+    def buildUser(obj):
         user = dict()
         user['name'] = obj.a.text
         for d in obj.findAll("div"):
             if "fsl" in d["class"]:
                 url = d.a["data-hovercard"]
-                userid = self.midRegex('id=(.*?)&extraget', url)
+                userid = Member.midRegex('id=(.*?)&extraget', url)
                 user['url'] = d.a['href']
                 user['userid'] = userid
             if "_17tq" in d["class"]:
@@ -19,7 +20,7 @@ class Member:
                 if d.text.startswith("Added by"):
                     user['addedby'] = d.abbr.previousSibling[9:-1]
         print(user['name'])
-        self.data[user['userid']] = user
+        return user
 
     def retrieve(self, url):
         request = urllib.request.Request(url)
@@ -38,7 +39,7 @@ class Member:
         jsonpData = self.retrieve(url).read()
         jsonp = str(jsonpData.decode('unicode_escape').encode('ascii','ignore'))
         jsonp = jsonp.replace('\\\\/', "/")
-        content = self.midRegex('":"(.*?)"}],', jsonp)
+        content = Member.midRegex('":"(.*?)"}],', jsonp)
         soup = BeautifulSoup(content)
         self.processContainer(soup)
 
@@ -49,14 +50,23 @@ class Member:
             if "uiMorePager" in cell['class']:
                 self.nextPage(item.a['href'])
             else:
-                self.handleAdd(item)
+                user = self.buildUser(item)
+                self.handler(user)
+
 
     def __init__(self, groupId, cookieText):
         self.cookieText = cookieText
         self.groupId = groupId
-        self.data = dict()
 
-    def get(self):
+    def getDict(self):
+        self.data = dict()
+        def simpleAdd(user):
+            self.data[user['userid']] = user
+        self.get(simpleAdd)
+        return self.data
+
+    def get(self, func):
+        self.handler = func
         tag = 'fbProfileBrowserListContainer'
         # get initial page content
         groupUrl = "https://www.facebook.com/groups/" + self.groupId + "/members/"
@@ -70,7 +80,7 @@ class Member:
                 break
 
         # extract from comment
-        content = self.midRegex('<!--(.*?)-->', hiddenContent)
+        content = Member.midRegex('<!--(.*?)-->', hiddenContent)
 
         # parse DOM
         soup = BeautifulSoup(content)
