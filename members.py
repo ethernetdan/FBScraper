@@ -1,6 +1,6 @@
 import urllib.request
 from bs4 import BeautifulSoup
-import re
+import scrape
 
 class Member:
     @staticmethod
@@ -10,7 +10,7 @@ class Member:
         for d in obj.findAll("div"):
             if "fsl" in d["class"]:
                 url = d.a["data-hovercard"]
-                userid = Member.midRegex('id=(.*?)&extraget', url)
+                userid = scrape.midRegex('id=(.*?)&extraget', url)
                 user['url'] = d.a['href']
                 user['userid'] = userid
             if "_17tq" in d["class"]:
@@ -27,19 +27,10 @@ class Member:
         request.add_header("Cookie", self.cookieText)
         return urllib.request.urlopen(request)
 
-    @staticmethod
-    def midRegex(regex, search):
-        regex = re.compile(regex)
-        match = regex.search(search)
-        content = match.group(1)
-        return content
-
     def nextPage(self, url):
         url = "https://www.facebook.com" + url + "&__a=1"
         jsonpData = self.retrieve(url).read()
-        jsonp = str(jsonpData.decode('unicode_escape').encode('ascii','ignore'))
-        jsonp = jsonp.replace('\\\\/', "/")
-        content = Member.midRegex('":"(.*?)"}],', jsonp)
+        content = scrape.jsonpToHTML(jsonpData)
         soup = BeautifulSoup(content)
         self.processContainer(soup)
 
@@ -80,7 +71,7 @@ class Member:
                 break
 
         # extract from comment
-        content = Member.midRegex('<!--(.*?)-->', hiddenContent)
+        content = scrape.midRegex('<!--(.*?)-->', hiddenContent)
 
         # parse DOM
         soup = BeautifulSoup(content)
