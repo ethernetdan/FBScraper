@@ -28,6 +28,7 @@ class Member:
         url = "https://www.facebook.com" + url + "&__a=1"
         jsonpData = self.retrieve(url).read()
         content = scrape.jsonpToHTML(jsonpData)
+        content = midExtract('":"','"}],', content)
         soup = BeautifulSoup(content)
         self.processContainer(soup)
 
@@ -58,14 +59,10 @@ class Member:
         tag = 'fbProfileBrowserListContainer'
         # get initial page content
         groupUrl = "https://www.facebook.com/groups/" + self.groupId + "/members/"
-        response = self.retrieve(groupUrl)
+        response = self.retrieve(groupUrl).readlines()
 
         # get FB content comment blocks
-        bTag = tag.encode("utf-8")
-        for line in response.readlines():
-            if bTag in line:
-                hiddenContent = str(line)
-                break
+        hiddenContent = scrape.lineSearch(tag, response)
 
         # extract from comment
         content = scrape.midExtract('<!--', '-->', hiddenContent)

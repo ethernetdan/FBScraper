@@ -11,10 +11,18 @@ def midExtract(begin, end, search):
 def jsonpToHTML(jsonpData):
     jsonp = str(jsonpData.decode('unicode_escape').encode('ascii','ignore'))
     jsonp = jsonp.replace('\\\\/', "/")
-    content = midExtract('":"','"}],', jsonp)
-    return content
+    return jsonp
 
 def retrieve(url, cookie):
     request = urllib.request.Request(url)
     request.add_header("Cookie", cookie)
     return urllib.request.urlopen(request)
+
+def lineSearch(key, lines):
+    hiddenContent = str()
+    bKey = key.encode("utf-8")
+    for line in lines:
+        if bKey in line:
+            hiddenContent = str(line)
+            break
+    return hiddenContent
