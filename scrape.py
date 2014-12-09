@@ -1,6 +1,7 @@
 import re
 
-def midRegex(regex, search):
+def midExtract(begin, end, search):
+    regex = str(begin) + '(.*?)' + str(end)
     regex = re.compile(regex)
     match = regex.search(search)
     content = match.group(1)
@@ -9,5 +10,5 @@ def midRegex(regex, search):
 def jsonpToHTML(jsonpData):
     jsonp = str(jsonpData.decode('unicode_escape').encode('ascii','ignore'))
     jsonp = jsonp.replace('\\\\/', "/")
-    content = midRegex('":"(.*?)"}],', jsonp)
+    content = midExtract('":"','"}],', jsonp)
     return content

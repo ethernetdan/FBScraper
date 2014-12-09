@@ -10,7 +10,7 @@ class Member:
         for d in obj.findAll("div"):
             if "fsl" in d["class"]:
                 url = d.a["data-hovercard"]
-                userid = scrape.midRegex('id=(.*?)&extraget', url)
+                userid = scrape.midExtract('id=', '&extraget', url)
                 user['url'] = d.a['href']
                 user['userid'] = userid
             if "_17tq" in d["class"]:
@@ -71,10 +71,9 @@ class Member:
                 break
 
         # extract from comment
-        content = scrape.midRegex('<!--(.*?)-->', hiddenContent)
+        content = scrape.midExtract('<!--', '-->', hiddenContent)
 
         # parse DOM
         soup = BeautifulSoup(content)
         encapTag = soup.findAll("div", {"class": tag})[0]
         self.processContainer(encapTag)
-        return self.data
