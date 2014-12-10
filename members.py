@@ -9,7 +9,7 @@ class Member:
         for d in obj.findAll("div"):
             if "fsl" in d["class"]:
                 url = d.a["data-hovercard"]
-                userid = scrape.midExtract('id=', '&extraget', url)
+                userid = scrape.midExtract('id=', '&', url)
                 user['url'] = d.a['href']
                 user['userid'] = userid
             if "_17tq" in d["class"]:

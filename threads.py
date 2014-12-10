@@ -1,8 +1,34 @@
 from bs4 import BeautifulSoup
 import scrape
 import urllib
-
 class Thread:
+    @staticmethod
+    def buildThread(threadData):
+        thread = dict()
+        author = dict()
+        meta = threadData("div", {"class": "_3dp"})[0]
+
+        # get author data
+        authorData = meta("a")[0]
+        author["name"] = authorData.text
+        author["id"] = scrape.midExtract("id=", "&", authorData["data-hovercard"])
+        author["url"] = authorData["href"]
+
+        postInfo = meta("a", {"class": "_5pcq"})[0]
+        thread["date"] = int(postInfo.abbr['data-utime'])
+        thread["id"] = postInfo["href"].split("/")[-2]
+
+        # get post body
+        postText = str()
+        for p in threadData("p"):
+            if len(postText) != 0:
+                postText += '\n'
+            postText += p.text
+
+        thread["body"] = postText
+        thread["author"] = author
+        return thread
+
     def __init__(self, groupId, cookieText):
         self.cookieText = cookieText
         self.groupId = groupId
@@ -14,14 +40,13 @@ class Thread:
         soup = BeautifulSoup(content)
         encapTag = soup.findAll("div", {"class": "mbm"})
         for tag in encapTag:
-            post = tag("span", {"class": "fwb"})[0]
-            text = post.a.text
-            for p in tag("p"):
-                text += '\n'+ p.text
-            print(text)
+            thread = Thread.buildThread(tag)
+            self.handler(thread)
 
     def nextPage(self, content):
         data = scrape.midExtract('GroupEntstreamPagelet",', ', {"target_id"', content)
+        if data is False:
+            return
         data = urllib.parse.quote(data)
         url = "https://www.facebook.com/ajax/pagelet/generic.php/GroupEntstreamPagelet?data=" + data + "&__a=1"
         response = self.retrieve(url).read()

@@ -5,6 +5,8 @@ def midExtract(begin, end, search):
     regex = str(begin) + '(.*?)' + str(end)
     regex = re.compile(regex)
     match = regex.search(search)
+    if match is None:
+        return False
     content = match.group(1)
     return content
 
