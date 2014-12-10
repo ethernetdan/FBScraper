@@ -28,7 +28,7 @@ class Member:
         url = "https://www.facebook.com" + url + "&__a=1"
         jsonpData = self.retrieve(url).read()
         content = scrape.jsonpToHTML(jsonpData)
-        content = midExtract('":"','"}],', content)
+        content = scrape.midExtract('":"','"}],', content)
         soup = BeautifulSoup(content)
         self.processContainer(soup)
 
